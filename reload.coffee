@@ -48,40 +48,6 @@ args = args.map (file) ->
     file.replace /\.coffee$/, '.js'
 
 
-
-main = () ->
-
-    if not args.length or args[0] is '--help'
-        util.print "\n    #{self} expects at least one argument. Try running #{self} like this:"
-        util.print "\n    > node #{self} [app.js]\n"
-        util.print "\n    (You may want to check out http://github.com/johnflesch/reload.js/blob/master/README.md)\n\n"
-        return 
-
-    # If the node instance already exists, kill it so we can restart
-    child.kill() if child?.pid
-    
-    # Spawn a new instance of 'node'
-    child = proc.spawn prog, args
-
-    # Display STDOUT, STDERR and EXIT
-    child.stdout.on 'data', (data) -> util.print data
-    child.stderr.on 'data', (data) -> util.print data
-    child.stderr.on 'exit', (code, signal) ->
-        util.debug "[#{self}] Child process exited with code (#{code}), and signal (#{signal})"
-
-    # Watch all the "js" and "coffee" files in our application for changes.
-    eachWatchedFile (file) ->
-        fs.unwatchFile file
-        fs.watchFile file, interval: WATCH_INTERVAL, (curr, prev) ->
-            if curr.mtime.valueOf() > prev.mtime.valueOf()
-                if /\.js$/.test file
-                    util.debug "[#{self}] #{file} has changed. Restarting!"
-                    main.call()
-                else 
-                    util.debug "[#{self}] #{file} has changed. Recompiling..."
-                    compile file
-
-
 # Precompile all scripts
 util.debug "[#{self}] Compiling project..."
 
@@ -96,4 +62,36 @@ eachWatchedFile (file, files_count) ->
 
             # Then start project
             util.debug "[#{self}] Starting #{args[0]}"
-            main()
+
+            do () ->
+                callee = arguments.callee
+
+                if not args.length or args[0] is '--help'
+                    util.print "\n    #{self} expects at least one argument. Try running #{self} like this:"
+                    util.print "\n    > node #{self} [app.js]\n"
+                    util.print "\n    (You may want to check out http://github.com/johnflesch/reload.js/blob/master/README.md)\n\n"
+                    return 
+
+                # If the node instance already exists, kill it so we can restart
+                child.kill() if child?.pid
+                
+                # Spawn a new instance of 'node'
+                child = proc.spawn prog, args
+
+                # Display STDOUT, STDERR and EXIT
+                child.stdout.on 'data', (data) -> util.print data
+                child.stderr.on 'data', (data) -> util.print data
+                child.stderr.on 'exit', (code, signal) ->
+                    util.debug "[#{self}] Child process exited with code (#{code}), and signal (#{signal})"
+
+                # Watch all the "js" and "coffee" files in our application for changes.
+                eachWatchedFile (file) ->
+                    fs.unwatchFile file
+                    fs.watchFile file, interval: WATCH_INTERVAL, (curr, prev) ->
+                        if curr.mtime.valueOf() > prev.mtime.valueOf()
+                            if /\.js$/.test file
+                                util.debug "[#{self}] #{file} has changed. Restarting!"
+                                callee.call()
+                            else 
+                                util.debug "[#{self}] #{file} has changed. Recompiling..."
+                                compile file
