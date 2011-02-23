@@ -9,8 +9,12 @@ child = null
 
 # Files to be watched and precompiled
 WATCHES =
-    '.js': null
+    '.js'    : null
     '.coffee': (file) -> ["coffee", ["-c", file]]
+    #'.json' : null
+    #'.sass' : (file) -> ["sass", [file, file.replace(/\.sass$/, ".css")]]
+    #'.sql'  : (file) -> ["sqlite3", ["-init", file]]
+    #'.c'    : (file) -> ["gcc", [file]]
 
 # Regexp for filetypes
 SUPPORTED = (key for key, value of WATCHES).join "|"
