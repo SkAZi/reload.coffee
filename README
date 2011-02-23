@@ -1,0 +1,4 @@
+reload.js will watch your node.js application, precompile *.coffee files and restart node when a change is made. 
+It should make testing and developing your CoffeeScript on Node.js application a little easier.
+
+Thanks for basic idea to https://github.com/johnflesch
