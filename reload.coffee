@@ -14,7 +14,7 @@ WATCHES =
     #'.json' : null
     #'.sass' : (file) -> ["sass", [file, file.replace(/\.sass$/, ".css")]]
     #'.sql'  : (file) -> ["sqlite3", ["-init", file]]
-    #'.c'    : (file) -> ["gcc", [file]]
+    #'.c'    : (file) -> ["make", []]
 
 # Regexp for filetypes
 SUPPORTED = (key for key, value of WATCHES).join "|"
@@ -69,7 +69,7 @@ eachWatchedFile (file, files_count) ->
                 if not args.length or args[0] is '--help'
                     util.print "\n    #{self} expects at least one argument. Try running #{self} like this:"
                     util.print "\n    > node #{self} [app.js]\n"
-                    util.print "\n    (You may want to check out http://github.com/johnflesch/reload.js/blob/master/README.md)\n\n"
+                    util.print "\n    (You may want to check out http://github.com/skazi/reload.coffee/blob/master/README)\n\n"
                     return 
 
                 # If the node instance already exists, kill it so we can restart
